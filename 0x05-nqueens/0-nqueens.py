@@ -1,91 +1,96 @@
 #!/usr/bin/python3
-'''N Queens Challenge'''
+"""
+This module contains an algorithm that resolves the N-Queen puzzle
+using backtracking
+"""
 
-import sys
+
+def isSafe(m_queen, nqueen):
+    """ Method that determines if the queens can or can't kill each other
+    Args:
+        m_queen: array that has the queens positions
+        nqueen: queen number
+    Returns:
+        True: when queens can't kill each other
+        False: when some of the queens can kill
+    """
+
+    for i in range(nqueen):
+
+        if m_queen[i] == m_queen[nqueen]:
+            return False
+
+        if abs(m_queen[i] - m_queen[nqueen]) == abs(i - nqueen):
+            return False
+
+    return True
+
+
+def print_result(m_queen, nqueen):
+    """ Method that prints the list with the Queens positions
+    Args:
+        m_queen: array that has the queens positions
+        nqueen: queen number
+    """
+
+    res = []
+
+    for i in range(nqueen):
+        res.append([i, m_queen[i]])
+
+    print(res)
+
+
+def Queen(m_queen, nqueen):
+    """ Recursive function that executes the Backtracking algorithm
+    Args:
+        m_queen: array that has the queens positions
+        nqueen: queen number
+    """
+
+    if nqueen is len(m_queen):
+        print_result(m_queen, nqueen)
+        return
+
+    m_queen[nqueen] = -1
+
+    while((m_queen[nqueen] < len(m_queen) - 1)):
+
+        m_queen[nqueen] += 1
+
+        if isSafe(m_queen, nqueen) is True:
+
+            if nqueen is not len(m_queen):
+                Queen(m_queen, nqueen + 1)
+
+
+def solveNQueen(size):
+    """ Function that invokes the Backtracking algorithm
+    Args:
+        size: size of the chessboard
+    """
+
+    m_queen = [-1 for i in range(size)]
+
+    Queen(m_queen, 0)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+
+    import sys
+
+    if len(sys.argv) == 1 or len(sys.argv) > 2:
         print("Usage: nqueens N")
         sys.exit(1)
 
     try:
-        n = int(sys.argv[1])
-    except ValueError:
-        print('N must be a number')
-        exit(1)
+        size = int(sys.argv[1])
+    except:
+        print("N must be a number")
+        sys.exit(1)
 
-    if n < 4:
-        print('N must be at least 4')
-        exit(1)
+    if size < 4:
+        print("N must be at least 4")
+        sys.exit(1)
 
-    solutions = []
-    placed_queens = []  # coordinates format [row, column]
-    stop = False
-    r = 0
-    c = 0
-
-    # iterate thru rows
-    while r < n:
-        goback = False
-        # iterate thru columns
-        while c < n:
-            # check is current column is safe
-            safe = True
-            for cord in placed_queens:
-                col = cord[1]
-                if(col == c or col + (r-cord[0]) == c or
-                        col - (r-cord[0]) == c):
-                    safe = False
-                    break
-
-            if not safe:
-                if c == n - 1:
-                    goback = True
-                    break
-                c += 1
-                continue
-
-            # place queen
-            cords = [r, c]
-            placed_queens.append(cords)
-            # if last row, append solution and reset all to last unfinished row
-            # and last safe column in that row
-            if r == n - 1:
-                solutions.append(placed_queens[:])
-                for cord in placed_queens:
-                    if cord[1] < n - 1:
-                        r = cord[0]
-                        c = cord[1]
-                for i in range(n - r):
-                    placed_queens.pop()
-                if r == n - 1 and c == n - 1:
-                    placed_queens = []
-                    stop = True
-                r -= 1
-                c += 1
-            else:
-                c = 0
-            break
-        if stop:
-            break
-        # on fail: go back to previous row
-        # and continue from last safe column + 1
-        if goback:
-            r -= 1
-            while r >= 0:
-                c = placed_queens[r][1] + 1
-                del placed_queens[r]  # delete previous queen coordinates
-                if c < n:
-                    break
-                r -= 1
-            if r < 0:
-                break
-            continue
-        r += 1
-
-    for idx, val in enumerate(solutions):
-        if idx == len(solutions) - 1:
-            print(val, end='')
-        else:
-            print(val)
+    solveNQueen(size)
